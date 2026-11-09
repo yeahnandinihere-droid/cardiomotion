@@ -158,13 +158,11 @@ def calculate_volume(mask, spacing, label):
 # --------------------------------------------------
 # MAIN APPLICATION
 # --------------------------------------------------
-
 if uploaded_image is not None:
 
     try:
 
-        image = load_nifti(uploaded_image)
-        image_data = image.get_fdata()
+        image, image_data = load_nifti(uploaded_image)
 
         st.success("Cardiac MRI image loaded successfully.")
 
@@ -173,17 +171,21 @@ if uploaded_image is not None:
         col1, col2, col3 = st.columns(3)
 
         col1.metric("Image dimensions", str(image_data.shape))
+
         col2.metric(
             "Voxel spacing",
             str(tuple(round(x, 3) for x in image.header.get_zooms()[:3]))
         )
+
         col3.metric("Data type", str(image_data.dtype))
 
         mask = None
 
-st.success("Segmentation mask loaded successfully.")
-           mask_image, mask_data = load_nifti(uploaded_mask)
-mask = mask_data.astype(np.uint8)
+        if uploaded_mask is not None:
+
+            mask_image, mask_data = load_nifti(uploaded_mask)
+
+            mask = mask_data.astype(np.uint8)
 
             if mask.shape != image_data.shape:
                 st.error(
