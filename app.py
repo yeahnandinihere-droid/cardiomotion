@@ -57,28 +57,29 @@ phase = st.sidebar.selectbox(
 # --------------------------------------------------
 # IMAGE LOADING
 # --------------------------------------------------
+if uploaded_file is None:
+    return None, None
 
-def load_nifti(uploaded_file):
+import tempfile
 
-    if uploaded_file is None:
-        return None
+suffix = ".nii.gz" if uploaded_file.name.endswith(".nii.gz") else ".nii"
 
-    import tempfile
+with tempfile.NamedTemporaryFile(
+    suffix=suffix,
+    delete=False
+) as temp_file:
 
-    suffix = ".nii.gz" if uploaded_file.name.endswith(".nii.gz") else ".nii"
+    temp_file.write(uploaded_file.getvalue())
+    temp_path = temp_file.name
 
-    with tempfile.NamedTemporaryFile(
-        suffix=suffix,
-        delete=False
-    ) as temp_file:
+try:
+    image = nib.load(temp_path)
+    image_data = image.get_fdata()
 
-        temp_file.write(uploaded_file.getvalue())
-        temp_path = temp_file.name
+    return image, image_data
 
-    try:
-        image = nib.load(temp_path)
-        return image
-    finally:
+finally:
+    if os.path.exists(temp_path):
         os.remove(temp_path)
 
 
