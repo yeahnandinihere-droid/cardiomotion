@@ -181,8 +181,7 @@ if uploaded_image is not None:
 
         mask = None
 
-        if uploaded_mask is not None:
-
+st.success("Segmentation mask loaded successfully.")
            mask_image, mask_data = load_nifti(uploaded_mask)
 mask = mask_data.astype(np.uint8)
 
