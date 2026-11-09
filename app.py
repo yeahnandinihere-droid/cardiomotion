@@ -109,6 +109,7 @@ st.error(f"Unable to load MRI: {error}")
 
             frame_index = frame_number - 1
 image_slice = image_data[:, :, slice_index, frame_index]
+vmin = np.percentile(image_slice, 2)
 fig, ax = plt.subplots()
 ax.imshow(image_slice, cmap="gray")
 ax.set_title(
