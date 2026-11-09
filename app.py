@@ -119,7 +119,8 @@ if uploaded_file is not None:
 
             total_slices = image_data.shape[2]
             total_frames = image_data.shape[3]
-
+if "current_frame" not in st.session_state:
+    st.session_state.current_frame = 1
             slice_number = st.slider(
                 "Select MRI Slice",
                 min_value=1,
