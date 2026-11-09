@@ -1,23 +1,16 @@
-
 import streamlit as st
 import nibabel as nib
 import numpy as np
 import matplotlib.pyplot as plt
 import tempfile
 import os
-
-
-# --------------------------------------------------
-# PAGE CONFIGURATION
-# --------------------------------------------------
-
 st.set_page_config(
     page_title="CardioMotion",
     page_icon="❤️",
     layout="wide"
 )
-
 st.title("❤️ CardioMotion")
+
 st.subheader("4D Cardiac MRI Analysis Platform")
 
 st.info(
@@ -31,302 +24,105 @@ st.write(
 )
 
 st.divider()
-
-
-# --------------------------------------------------
-# MRI UPLOAD
-# --------------------------------------------------
-
 st.header("Upload Cardiac MRI")
 
 uploaded_file = st.file_uploader(
     "Choose a 4D cardiac MRI file",
     type=["nii", "gz"]
 )
-
-
-# --------------------------------------------------
-# MRI LOADING FUNCTION
-# --------------------------------------------------
-
 def load_4d_mri(uploaded_file):
-
     suffix = (
-        ".nii.gz"
-        if uploaded_file.name.lower().endswith(".nii.gz")
-        else ".nii"
-    )
-
+    ".nii.gz"
+    if uploaded_file.name.lower().endswith(".nii.gz")
+    else ".nii"
+)
     with tempfile.NamedTemporaryFile(
-        suffix=suffix,
-        delete=False
-    ) as temp_file:
-
+    suffix=suffix,
+    delete=False
+) as temp_file:
         temp_file.write(uploaded_file.getvalue())
         temp_path = temp_file.name
-
     try:
+    image = nib.load(temp_path)
+    image_data = image.get_fdata()
 
-        image = nib.load(temp_path)
-
-        image_data = image.get_fdata()
-
-        return image, image_data
-
+    return image, image_data
     finally:
-
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-
-
-# --------------------------------------------------
-# PROCESS UPLOADED MRI
-# --------------------------------------------------
-
-if uploaded_file is not None:
+    if os.path.exists(temp_path):
+        os.remove(temp_path)
+        if uploaded_file is not None:
 
     try:
-
         image, image_data = load_4d_mri(uploaded_file)
-
-        if image_data.ndim != 4:
-
+                if image_data.ndim != 4:
             st.error(
                 "This is not a 4D MRI volume. "
                 "Please upload a 4D cardiac MRI."
             )
-
-        else:
-
+                            else:
             st.success("4D Cardiac MRI loaded successfully!")
-
-            # ------------------------------------------
-            # MRI INFORMATION
-            # ------------------------------------------
-
-            st.subheader("MRI Information")
+                    st.subheader("MRI Information")
 
             st.write("Image dimensions:", image_data.shape)
+
             st.write("Data type:", image_data.dtype)
+
             st.write(
                 "Voxel spacing:",
                 image.header.get_zooms()
             )
-
-            # ------------------------------------------
-            # SLICE AND FRAME NAVIGATION
-            # ------------------------------------------
-
-            # ------------------------------------------
-            # SLICE NAVIGATION
-            # ------------------------------------------
-
-            total_slices = image_data.shape[2]
+                    total_slices = image_data.shape[2]
             total_frames = image_data.shape[3]
-
-            if "current_frame" not in st.session_state:
-                st.session_state.current_frame = 1
-
-            elif st.session_state.current_frame > total_frames:
-                st.session_state.current_frame = 1
-
-            slice_number = st.slider(
+                    slice_number = st.slider(
                 "Select MRI Slice",
                 min_value=1,
                 max_value=total_slices,
                 value=min(5, total_slices)
             )
-
-            slice_index = slice_number - 1
-
-            # ------------------------------------------
-            # CINE PLAYBACK CONTROLS
-            # ------------------------------------------
-
-            play_cine = st.toggle(
-                "Play Cardiac MRI",
-                value=False
+                    slice_index = slice_number - 1
+                    frame_number = st.slider(
+                "Select Cardiac Frame",
+                min_value=1,
+                max_value=total_frames,
+                value=1
             )
-
-            playback_speed = st.select_slider(
-                "Playback Speed (frames per second)",
-                options=[1, 2, 5, 10],
-                value=2
-            )
-
-            # ------------------------------------------
-            # CINE MRI VIEWER
-            # ------------------------------------------
-
-            @st.fragment(
-                run_every=(
-                    1 / playback_speed if play_cine else None
-                )
-            )
-            def cine_viewer():
-
-                if play_cine:
-                    next_frame = (
-                        st.session_state.current_frame
-                        % total_frames
-                    ) + 1
-
-                    st.session_state.current_frame = next_frame
-
-                frame_number = st.slider(
-                    "Select Cardiac Frame",
-                    min_value=1,
-                    max_value=total_frames,
-                    key="current_frame"
-                )
-
-                frame_index = frame_number - 1
-
-                image_slice = image_data[
-                    :, :, slice_index, frame_index
-                ]
-
-                # IMAGE INTENSITY RANGE
-
-                vmin = np.percentile(image_slice, 2)
-                vmax = np.percentile(image_slice, 98)
-
-                if vmax <= vmin:
-                    vmax = vmin + 1
-
-                midpoint = (vmin + vmax) / 2
-                half_range = (vmax - vmin) / 2
-
-                # CONTRAST CONTROL
-
-                contrast = st.slider(
-                    "Adjust Contrast",
-                    min_value=50,
-                    max_value=200,
-                    value=100
-                )
-
-                contrast_factor = 100 / contrast
-
-                # BRIGHTNESS CONTROL
-
-                brightness = st.slider(
-                    "Adjust Brightness",
-                    min_value=-50,
-                    max_value=50,
-                    value=0
-                )
-
-                brightness_shift = (
-                    brightness / 100
-                ) * (vmax - vmin)
-
-                adjusted_vmin = (
-                    midpoint
-                    - (half_range * contrast_factor)
-                    - brightness_shift
-                )
-
-                adjusted_vmax = (
-                    midpoint
-                    + (half_range * contrast_factor)
-                    - brightness_shift
-                )
-
-                # DISPLAY MRI
-
-                fig, ax = plt.subplots(figsize=(8, 8))
-
-                ax.imshow(
-                    image_slice,
-                    cmap="gray",
-                    vmin=adjusted_vmin,
-                    vmax=adjusted_vmax
-                )
-
-                ax.set_title(
-                    f"Cardiac Frame {frame_number} | "
-                    f"Slice {slice_number}"
-                )
-
-                ax.axis("off")
-
-                st.pyplot(fig)
-                plt.close(fig)
-
-            cine_viewer()
-
-            # ------------------------------------------
-            # IMAGE INTENSITY RANGE
-            # ------------------------------------------
-
-            vmin = np.percentile(image_slice, 2)
+                    image_slice = image_data[
+                :, :, slice_index, frame_index
+            ]
+                    vmin = np.percentile(image_slice, 2)
             vmax = np.percentile(image_slice, 98)
-
-            if vmax <= vmin:
+                    if vmax <= vmin:
                 vmax = vmin + 1
-
-            midpoint = (vmin + vmax) / 2
-            half_range = (vmax - vmin) / 2
-
-            # ------------------------------------------
-            # CONTRAST CONTROL
-            # ------------------------------------------
-
-            contrast = st.slider(
+                                    midpoint = (vmin + vmax) / 2
+                                    half_range = (vmax - vmin) / 2
+                                    contrast = st.slider(
                 "Adjust Contrast",
                 min_value=50,
                 max_value=200,
                 value=100
             )
-
-            contrast_factor = 100 / contrast
-
-            # ------------------------------------------
-            # BRIGHTNESS CONTROL
-            # ------------------------------------------
-
-            brightness = st.slider(
+                                    contrast_factor = 100 / contrast
+                                    brightness = st.slider(
                 "Adjust Brightness",
                 min_value=-50,
                 max_value=50,
                 value=0
             )
-
-            brightness_shift = (
+                                    brightness_shift = (
                 brightness / 100
             ) * (vmax - vmin)
-
-            # Calculate final display limits
-
-            adjusted_vmin = (
+                                    adjusted_vmin = (
                 midpoint
                 - (half_range * contrast_factor)
-                + brightness_shift
+                - brightness_shift
             )
 
             adjusted_vmax = (
                 midpoint
                 + (half_range * contrast_factor)
-                + brightness_shift
+                - brightness_shift
             )
-
-            # ------------------------------------------
-            # DISPLAY MRI IMAGE
-            # ------------------------------------------
-if play_cine:
-
-    @st.fragment(run_every=1 / playback_speed)
-    def cine_playback():
-
-        next_frame = (
-            st.session_state.current_frame % total_frames
-        ) + 1
-
-        st.session_state.current_frame = next_frame
-
-    cine_playback()
-            fig, ax = plt.subplots(figsize=(8, 8))
+                    fig, ax = plt.subplots(figsize=(8, 8))
 
             ax.imshow(
                 image_slice,
@@ -345,7 +141,4 @@ if play_cine:
             st.pyplot(fig)
 
             plt.close(fig)
-
-    except Exception as error:
-
-        st.error(f"Unable to load MRI: {error}")
+        
