@@ -183,8 +183,8 @@ if uploaded_image is not None:
 
         if uploaded_mask is not None:
 
-            mask_image = load_nifti(uploaded_mask)
-            mask = mask_image.get_fdata().astype(np.uint8)
+           mask_image, mask_data = load_nifti(uploaded_mask)
+mask = mask_data.astype(np.uint8)
 
             if mask.shape != image_data.shape:
                 st.error(
