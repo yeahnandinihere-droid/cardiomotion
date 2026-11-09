@@ -134,5 +134,20 @@ if uploaded_file is not None:
 
     except Exception as error:
         st.error(f"Unable to load MRI: {error}")
+        contrast=st.slider("Adjust contrast",
+        min_value=50
+        max_value=200
+        value=100
+        )
+        half_range = (vmax - vmin) / 2
+        contrast_factor = 100 / contrast
+        adjusted_vmin = midpoint - (half_range * contrast_factor)
+
+adjusted_vmax = midpoint + (half_range * contrast_factor)
+adjusted_vmin = midpoint - (half_range * contrast_factor)
+
+adjusted_vmax = midpoint + (half_range * contrast_factor)
+
+            
         
        
