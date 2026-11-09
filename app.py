@@ -126,7 +126,16 @@ if uploaded_file is not None:
                 max_value=total_slices,
                 value=min(5, total_slices)
             )
+play_cine = st.toggle(
+    "Play Cardiac MRI",
+    value=False
+)
 
+playback_speed = st.select_slider(
+    "Playback Speed (frames per second)",
+    options=[1, 2, 5, 10],
+    value=2
+)
             frame_number = st.slider(
                 "Select Cardiac Frame",
                 min_value=1,
