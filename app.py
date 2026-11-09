@@ -57,6 +57,7 @@ phase = st.sidebar.selectbox(
 # --------------------------------------------------
 # IMAGE LOADING
 # --------------------------------------------------
+def load_nifti(uploaded_file): 
 if uploaded_file is None:
     return None, None
 
