@@ -214,7 +214,18 @@ playback_speed = st.select_slider(
             # ------------------------------------------
             # DISPLAY MRI IMAGE
             # ------------------------------------------
+if play_cine:
 
+    @st.fragment(run_every=1 / playback_speed)
+    def cine_playback():
+
+        next_frame = (
+            st.session_state.current_frame % total_frames
+        ) + 1
+
+        st.session_state.current_frame = next_frame
+
+    cine_playback()
             fig, ax = plt.subplots(figsize=(8, 8))
 
             ax.imshow(
