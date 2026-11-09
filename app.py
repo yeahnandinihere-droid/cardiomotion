@@ -137,11 +137,12 @@ playback_speed = st.select_slider(
     options=[1, 2, 5, 10],
     value=2
 )
-            frame_number = st.slider(
-                "Select Cardiac Frame",
-                min_value=1,
-                max_value=total_frames,
-                value=1
+          frame_number = st.slider(
+    "Select Cardiac Frame",
+    min_value=1,
+    max_value=total_frames,
+    key="current_frame"
+)
             )
 
             # Convert slider values to Python indexes
