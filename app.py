@@ -55,7 +55,7 @@ def load_4d_mri(uploaded_file):
         return image, image_data
 
     finally:
-                if os.path exists(temp_path):
+                if os.path.exists(temp_path):
             os.remove(temp_path)
 
 
