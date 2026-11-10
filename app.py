@@ -142,3 +142,46 @@ def load_4d_mri(uploaded_file):
 
             plt.close(fig)
         
+st.write("Standalone cardiac cine playback testing module.")
+
+st.divider()
+total_frames = 30
+if "current_frame" not in st.session_state:
+    st.session_state.current_frame = 1
+
+if "play_cine" not in st.session_state:
+    st.session_state.play_cine = False
+
+if "playback_speed" not in st.session_state:
+    st.session_state.playback_speed = 1
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("▶ Play"):
+        st.session_state.play_cine = True
+
+with col2:
+    if st.button("⏸ Pause"):
+        st.session_state.play_cine = False
+playback_speed = st.selectbox(
+    "Playback Speed (FPS)",
+    options=[1, 2, 5, 10],
+    index=0,
+    key="playback_speed"
+)
+def advance_frame():
+
+    st.session_state.current_frame += 1
+
+    if st.session_state.current_frame > total_frames:
+        st.session_state.current_frame = 1
+st.metric(
+    label="Current Cardiac Frame",
+    value=st.session_state.current_frame
+) if st.session_state.play_cine:
+    time.sleep(1 / st.session_state.playback_speed)
+
+    advance_frame()
+
+    st.rerun()
+
