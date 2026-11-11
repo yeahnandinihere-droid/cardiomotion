@@ -39,6 +39,13 @@ uploaded_file = st.file_uploader(
     "Choose a 4D MRI file",
     type=["nii", "gz"]
 )
+def next_frame(current_frame, total_frames):
+    next_frame = current_frame + 1
+
+    if next_frame >= total_frames:
+        next_frame = 0
+
+    return next_frame
 if uploaded_file is not None:
     image_data = load_4d_mri(uploaded_file)
 
