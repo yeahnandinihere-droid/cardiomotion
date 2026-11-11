@@ -73,7 +73,12 @@ if uploaded_file is not None:
 
         frame_number = 1
         frame_index = frame_number - 1
-
+slice_number = st.slider(
+    "Select MRI Slice",
+    min_value=1,
+    max_value=total_slices,
+    value=1
+)
         image_slice = image_data[:, :, 0, frame_index]
 
         st.write("Selected image shape:", image_slice.shape)
