@@ -47,6 +47,17 @@ if uploaded_file is not None:
 total_frames=image_data.shape[3]
 total_slices=image_data.shape[2]
 st.write("Total MRI Slices:",total_slices)
+if "is_playing" not in st.session_state:
+    st.session_state.is_playing = False
+    col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("▶ Play"):
+        st.session_state.is_playing = True
+
+with col2:
+    if st.button("⏸ Pause"):
+        st.session_state.is_playing = False
 if image_data.ndim==4:
 st.sucess("This is a 4D MRI!")
 else 
