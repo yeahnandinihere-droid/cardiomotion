@@ -71,7 +71,12 @@ if uploaded_file is not None:
         st.write("Total MRI slices:", total_slices)
         st.write("Total cardiac frames:", total_frames)
 
-        frame_number = 1
+        frame_number = st.slider(
+    "Select Cardiac Frame",
+    min_value=1,
+    max_value=total_frames,
+    value=1
+)
         frame_index = frame_number - 1
 slice_number = st.slider(
     "Select MRI Slice",
