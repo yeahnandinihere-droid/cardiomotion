@@ -80,7 +80,7 @@ slice_number = st.slider(
     value=1
 )
 slice_index = slice_number - 1
-        image_slice = image_data[:, :, 0, frame_index]
+      image_slice = image_data[:, :, slice_index, frame_index]
 
         st.write("Selected image shape:", image_slice.shape)
 
