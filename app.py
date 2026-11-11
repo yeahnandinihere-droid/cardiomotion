@@ -58,8 +58,9 @@ if uploaded_file is not None:
         st.write("Total cardiac frames:", total_frames)
 
         # Playback state
-        if "is_playing" not in st.session_state:
-            st.session_state.is_playing = False
+       if "is_playing" not in st.session_state:
+    st.session_state.is_playing = False
+
 st.write("DEBUG: Playback controls are being reached")
         # Play and Pause buttons
         col1, col2 = st.columns(2)
