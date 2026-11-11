@@ -49,36 +49,43 @@ total_slices=image_data.shape[2]
 st.write("Total MRI Slices:",total_slices)
 if image_data.ndim==4:
 st.sucess("This is a 4D MRI!")
-if image_data.ndim==4
-st.success("this is a 4D MRI!")
 else 
 st.error("this is not a 4D MRI!")
 def display_mri_info(image data):
 st.write("MRI dimesnions:",image_data.shape)
 display_mri_info(image_data)
+
 if uploaded_file is not None:
-st.write("Total MRI slices:", image_data.shape[2])
-st.write("Total cardiac frames:", image_data.shape[3])
-total_frames = image_data.shape[3]
-st.write("Total cardiac frames:", total_frames)
-for frame in range(1, 6):
-    st.write("Cardiac frame:", frame)
-for frame in range(1,total_frames+1)
-st.write("caridac frame:",frame)
-frame_number = 12
-frame_index = frame_number - 1
+    image_data = load_4d_mri(uploaded_file)
 
-st.write("Python frame index:", frame_index)
-st.write("Selected image shape:", image_slice.shape)
-image_slice=image_data[:,:,0,frame_index]
-fig, ax = plt.subplots()
+    st.success("MRI file loaded successfully!")
 
-ax.imshow(image_slice, cmap="gray")
+    st.write("MRI dimensions:", image_data.shape)
 
-ax.axis("off")
+    if image_data.ndim == 4:
+        st.success("This is a 4D MRI!")
 
-st.pyplot(fig)
+        total_slices = image_data.shape[2]
+        total_frames = image_data.shape[3]
 
-plt.close(fig)
+        st.write("Total MRI slices:", total_slices)
+        st.write("Total cardiac frames:", total_frames)
 
+        frame_number = 1
+        frame_index = frame_number - 1
 
+        image_slice = image_data[:, :, 0, frame_index]
+
+        st.write("Selected image shape:", image_slice.shape)
+
+        fig, ax = plt.subplots()
+
+        ax.imshow(image_slice, cmap="gray")
+        ax.axis("off")
+
+        st.pyplot(fig)
+
+        plt.close(fig)
+
+    else:
+        st.error("This is not a 4D MRI!")
