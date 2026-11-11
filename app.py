@@ -87,19 +87,28 @@ if uploaded_file is not None:
 
     if image_data.ndim == 4:
         st.success("This is a 4D MRI!")
-
+        
         total_slices = image_data.shape[2]
         total_frames = image_data.shape[3]
+        cine_playback(total_frames)
 
         st.write("Total MRI slices:", total_slices)
         st.write("Total cardiac frames:", total_frames)
 
-      frame_number = st.slider(
+     frame_number = st.slider(
     "Select Cardiac Frame",
     min_value=1,
     max_value=total_frames,
-    value=st.session_state.frame_number
-) 
+    key="frame_number"
+)
+@st.fragment(run_every=0.5)
+def cine_playback(total_frames)
+    if st.session_state.is_playing:
+        current_index = st.session_state.frame_number - 1
+
+        new_index = next_frame(current_index, total_frames)
+
+        st.session_state.frame_number = new_index + 1
 
         frame_index = frame_number - 1
 slice_number = st.slider(
