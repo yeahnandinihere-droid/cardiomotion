@@ -65,6 +65,11 @@ with col1:
 with col2:
     if st.button("⏸ Pause"):
         st.session_state.is_playing = False
+        playback_speed = st.selectbox(
+    "Playback Speed",
+    [1, 2, 5, 10],
+    index=1
+)
 if image_data.ndim==4:
 st.sucess("This is a 4D MRI!")
 else 
